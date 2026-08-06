@@ -1,0 +1,27 @@
+order_id,order_date,product,customer,quantity,unit_price
+1001,2024-01-05,PRODUCT a, john smith ,2,19.99
+1002,01/15/2024,Product B,Jane Doe,1,45.50
+1003,20-01-2024,product c,BOB LEE,3,9.99
+1004,"Feb 3, 2024",Product A,alice wong,5,19.99
+1005,2024/02/14,PRODUCT b,Jane Doe ,2,45.50
+1006,3 Mar 2024, Product C ,Bob Lee,1,9.99
+1001,2024-01-05,PRODUCT a, john smith ,2,19.99
+1007,02/28/2024,product d,Carol King,4,12.00
+1008,15-03-2024,Product E,,1,30.00
+1009,2024-03-22,Product a,Alice Wong,2,19.99
+1010,04/10/2024,PRODUCT B,carol king,3,45.50
+1011,2024-01-18,Product C,  david park,2,9.99
+1012,"Jan 25, 2024",product a,David Park,1,19.99
+1013,2024/04/05,Product D,Jane Doe,,12.00
+1014,05/05/2024,Product E,Bob Lee,2,
+1015,18-02-2024,PRODUCT C,Alice Wong,4,9.99
+1016,2024-03-30,product e,  bob lee ,1,30.00
+1010,04/10/2024,PRODUCT B,carol king,3,45.50
+1017,"Feb 20, 2024",Product A,DAVID PARK,3,19.99
+1018,22-04-2024,product b,Carol King,1,45.50
+1019,2024-01-29,Product D ,jane doe,5,12.00
+1020,6 Mar 2024,PRODUCT a,Alice Wong,2,19.99
+1021,2024/03/11,Product C,,3,9.99
+1022,07/07/2024,product E,Bob Lee,1,30.00
+1023,2024-02-05,Product B,carol king,4,45.50
+1024,25-01-2024,product d,David Park,,12.00

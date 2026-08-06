@@ -1,0 +1,33 @@
+{
+  "total_revenue": 1128.22,
+  "order_count": 21,
+  "revenue_by_month": {
+    "2024-01": 215.42,
+    "2024-02": 520.88,
+    "2024-03": 179.92,
+    "2024-04": 182.0,
+    "2024-07": 30.0
+  },
+  "top_5_products": [
+    {
+      "product": "Product B",
+      "revenue": 500.5
+    },
+    {
+      "product": "Product A",
+      "revenue": 299.85
+    },
+    {
+      "product": "Product C",
+      "revenue": 129.87
+    },
+    {
+      "product": "Product D",
+      "revenue": 108.0
+    },
+    {
+      "product": "Product E",
+      "revenue": 90.0
+    }
+  ]
+}
