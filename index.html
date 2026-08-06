@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Report Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">S</span>
+      <div>
+        <h1>Sales Report Dashboard</h1>
+        <p class="sub">Cleaned sales data &middot; 2024</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="cards" id="cards"></section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Revenue by month</h2>
+      </div>
+      <div class="chart-holder">
+        <canvas id="revChart"></canvas>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>All orders</h2>
+        <input type="search" id="search" placeholder="Search product, customer, date…" aria-label="Search orders">
+      </div>
+      <div class="table-scroll">
+        <table id="ordersTable">
+          <thead>
+            <tr>
+              <th data-key="order_id">Order</th>
+              <th data-key="date">Date</th>
+              <th data-key="product">Product</th>
+              <th data-key="customer">Customer</th>
+              <th data-key="quantity" class="num">Qty</th>
+              <th data-key="unit_price" class="num">Unit price</th>
+              <th data-key="revenue" class="num">Revenue</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <p class="empty" id="empty" hidden>No matching orders.</p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span id="rowcount"></span>
+    <span>Built with Python &middot; Chart.js &middot; vanilla JS</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
