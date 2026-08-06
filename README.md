@@ -7,6 +7,8 @@
 
 Turns a messy sales CSV into clean data and a responsive dashboard — a Python cleaning script and a front-end report in one project.
 
+**🔗 [Live dashboard](https://muhammadhasnain1-debug.github.io/sales-report-dashboard/)** &nbsp;·&nbsp; **📊 [How it was built (visual walkthrough)](https://muhammadhasnain1-debug.github.io/sales-report-dashboard/walkthrough.html)**
+
 ## The problem
 
 Raw sales exports are inconsistent and hard to read. Dates come in every format, the same product is typed five different ways, names have random spacing, rows get duplicated, and cells are left blank. You can't chart data that looks like this — it has to be cleaned first.
@@ -75,6 +77,7 @@ sales-report-dashboard/
 ├── index.html          # dashboard markup
 ├── style.css           # dashboard styling (responsive)
 ├── script.js           # loads the data, builds cards / chart / table
+├── walkthrough.html    # visual explainer of how the project was built
 └── screenshots/
 ```
 

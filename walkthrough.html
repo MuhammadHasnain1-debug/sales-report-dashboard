@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Report Dashboard — Full Project Walkthrough</title>
+<style>
+  :root {
+    --bg: #EEF2F1; --surface: #FFFFFF; --surface-2: #F6FAF9; --ink: #16262A;
+    --muted: #566B6E; --line: #D9E2E0;
+    --accent: #0C8B78; --accent-ink: #075E51; --accent-bg: #E2F2EE;
+    --warm: #C15F33; --warm-ink: #9A4A25; --warm-bg: #FAECE4;
+    --blue: #2b6cb0; --blue-ink: #24597f; --blue-bg: #e5eef6;
+    --shadow: 0 1px 2px rgba(16,38,42,.04), 0 8px 24px rgba(16,38,42,.06);
+    --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Cascadia Code", "Cascadia Mono", ui-monospace, "Consolas", "SF Mono", Menlo, monospace;
+    --maxw: 1100px; --r: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0E1A1D; --surface: #152529; --surface-2: #1B2E33; --ink: #E8F0EE;
+      --muted: #90A5A5; --line: #26393D;
+      --accent: #2FC9B0; --accent-ink: #83E7D7; --accent-bg: #133029;
+      --warm: #E4926A; --warm-ink: #F0B394; --warm-bg: #2A2019;
+      --blue: #7fb0e0; --blue-ink: #a8cbec; --blue-bg: #17262f;
+      --shadow: 0 1px 2px rgba(0,0,0,.2), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #EEF2F1; --surface: #FFFFFF; --surface-2: #F6FAF9; --ink: #16262A;
+    --muted: #566B6E; --line: #D9E2E0; --accent: #0C8B78; --accent-ink: #075E51;
+    --accent-bg: #E2F2EE; --warm: #C15F33; --warm-ink: #9A4A25; --warm-bg: #FAECE4;
+    --blue: #2b6cb0; --blue-ink: #24597f; --blue-bg: #e5eef6;
+    --shadow: 0 1px 2px rgba(16,38,42,.04), 0 8px 24px rgba(16,38,42,.06);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1A1D; --surface: #152529; --surface-2: #1B2E33; --ink: #E8F0EE;
+    --muted: #90A5A5; --line: #26393D; --accent: #2FC9B0; --accent-ink: #83E7D7;
+    --accent-bg: #133029; --warm: #E4926A; --warm-ink: #F0B394; --warm-bg: #2A2019;
+    --blue: #7fb0e0; --blue-ink: #a8cbec; --blue-bg: #17262f;
+    --shadow: 0 1px 2px rgba(0,0,0,.2), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1100px 560px at 100% -8%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%),
+      var(--bg);
+    color: var(--ink); font-family: var(--font-sans); line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: var(--maxw); margin: 0 auto;
+    padding: clamp(20px,4vw,56px) clamp(16px,4vw,40px) 72px;
+    display: flex; flex-direction: column; gap: clamp(50px,7vw,90px);
+  }
+  section { display: flex; flex-direction: column; gap: 22px; }
+
+  .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--accent-ink); margin: 0; font-weight: 600; }
+  h1 { font-size: clamp(30px,5.4vw,54px); line-height: 1.04; letter-spacing: -0.02em;
+    margin: 0; text-wrap: balance; font-weight: 800; }
+  h2 { font-size: clamp(22px,3.2vw,31px); line-height: 1.15; letter-spacing: -0.01em;
+    margin: 0; text-wrap: balance; font-weight: 750; }
+  h3 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  .deck { font-size: clamp(16px,2.2vw,19px); color: var(--muted); max-width: 62ch; }
+  .sec-head { display: flex; flex-direction: column; gap: 8px; }
+
+  .card, .part, .step, .panel, .lesson, .filecard, .mock { transition: transform .18s ease; }
+
+  /* ---- end-to-end flow ---- */
+  .flow {
+    display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); padding: 16px; box-shadow: var(--shadow);
+  }
+  .node { display: flex; flex-direction: column; gap: 3px; padding: 11px 14px;
+    border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); }
+  .node .k { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; }
+  .node .d { font-size: 11px; color: var(--muted); }
+  .node.file { background: var(--accent-bg); border-color: color-mix(in srgb, var(--accent) 32%, var(--line)); }
+  .node.file .k { color: var(--accent-ink); }
+  .node.code { background: var(--warm-bg); border-color: color-mix(in srgb, var(--warm) 32%, var(--line)); }
+  .node.code .k { color: var(--warm-ink); }
+  .node.ui { background: var(--blue-bg); border-color: color-mix(in srgb, var(--blue) 34%, var(--line)); }
+  .node.ui .k { color: var(--blue-ink); }
+  .conn { align-self: center; color: var(--muted); font-size: 17px; }
+
+  /* ---- three parts ---- */
+  .parts { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .part { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; }
+  .part:hover { transform: translateY(-2px); }
+  .badge { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center;
+    font-weight: 800; font-family: var(--font-mono); color: #fff; }
+  .part.a .badge { background: var(--accent); }
+  .part.b .badge { background: var(--blue); }
+  .part.c .badge { background: var(--warm); }
+  .part .role { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); letter-spacing: .04em; }
+  .part ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; display: flex; flex-direction: column; gap: 5px; }
+  .part ul b { color: var(--ink); font-weight: 600; }
+
+  /* ---- before/after data cards ---- */
+  .transform { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+  .card-head { display: flex; align-items: center; gap: 8px; padding: 11px 14px;
+    font-family: var(--font-mono); font-size: 12.5px; border-bottom: 1px solid var(--line); font-weight: 600; }
+  .card-head .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .card.messy .card-head { background: var(--warm-bg); color: var(--warm-ink); }
+  .card.messy .card-head .dot { background: var(--warm); }
+  .card.clean .card-head { background: var(--accent-bg); color: var(--accent-ink); }
+  .card.clean .card-head .dot { background: var(--accent); }
+  .data { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.95; padding: 14px;
+    overflow-x: auto; white-space: pre; }
+  .flag { background: color-mix(in srgb, var(--warm) 20%, transparent); border-bottom: 2px solid var(--warm);
+    border-radius: 3px 3px 0 0; padding: 0 2px; }
+  .fix { background: color-mix(in srgb, var(--accent) 18%, transparent); border-bottom: 2px solid var(--accent);
+    border-radius: 3px 3px 0 0; padding: 0 2px; }
+  .row-dup { opacity: .5; text-decoration: line-through; text-decoration-color: var(--warm); }
+  .com { color: var(--muted); font-style: italic; }
+  .transform-mid { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+  .engine { background: var(--ink); color: var(--bg); font-family: var(--font-mono); font-size: 11.5px;
+    font-weight: 600; padding: 9px 12px; border-radius: 10px; white-space: nowrap; }
+  .arrow { color: var(--accent); font-size: 24px; }
+
+  /* ---- mini steps ---- */
+  .steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
+  .step .n { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; color: var(--accent-ink);
+    background: var(--accent-bg); border-radius: 6px; padding: 2px 7px; align-self: flex-start; }
+  .step h3 { font-size: 14.5px; }
+  .step p { font-size: 12.5px; color: var(--muted); }
+  .step .fn { font-family: var(--font-mono); font-size: 11px; color: var(--accent-ink);
+    border-top: 1px dashed var(--line); padding-top: 8px; }
+
+  /* ---- funnel ---- */
+  .funnel { display: flex; flex-direction: column; gap: 8px; }
+  .fbar { display: grid; grid-template-columns: 160px 1fr; align-items: center; gap: 12px; }
+  .fbar .lab { font-size: 13.5px; } .fbar .lab b { font-variant-numeric: tabular-nums; }
+  .track { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; height: 34px; overflow: hidden; }
+  .meter { height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 11px;
+    font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; color: #fff; white-space: nowrap; border-radius: 7px; }
+  .meter.raw { background: var(--warm); } .meter.mid { background: color-mix(in srgb, var(--warm) 50%, var(--accent)); }
+  .meter.clean { background: var(--accent); }
+  .drop { font-size: 12px; color: var(--warm-ink); font-family: var(--font-mono); }
+
+  /* ---- handoff ---- */
+  .handoff { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: center; }
+  pre { margin: 0; }
+  .json { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 18px; box-shadow: var(--shadow); overflow-x: auto; }
+  .json code { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.7; }
+  .jkey { color: var(--accent-ink); } .jnum { color: var(--warm-ink); } .jstr { color: var(--blue-ink); }
+  .maps { display: flex; flex-direction: column; gap: 10px; }
+  .map { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 11px; padding: 12px 14px; box-shadow: var(--shadow); }
+  .map .badge2 { font-family: var(--font-mono); font-size: 11px; color: var(--blue-ink); background: var(--blue-bg);
+    border-radius: 6px; padding: 3px 8px; white-space: nowrap; flex: none; }
+  .map p { font-size: 13.5px; } .map p b { color: var(--ink); }
+
+  /* ---- dashboard anatomy mock ---- */
+  .anatomy { display: grid; grid-template-columns: 1.05fr 1fr; gap: 20px; align-items: start; }
+  .mock { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 11px; }
+  .mock-row { display: flex; align-items: center; gap: 8px; }
+  .m-logo { width: 26px; height: 26px; border-radius: 7px; background: var(--accent); color: #fff;
+    display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+  .m-title { font-weight: 700; font-size: 13px; }
+  .pin { width: 20px; height: 20px; border-radius: 50%; background: var(--ink); color: var(--bg);
+    font-size: 11px; font-weight: 700; display: grid; place-items: center; flex: none; }
+  .m-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
+  .m-card { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px; height: 46px;
+    display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+  .m-card .ml { height: 5px; width: 60%; background: var(--muted); opacity: .4; border-radius: 3px; }
+  .m-card .mv { height: 9px; width: 80%; background: var(--accent); border-radius: 3px; }
+  .m-chart { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px;
+    display: flex; align-items: flex-end; gap: 10px; height: 96px; }
+  .m-chart .b { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; }
+  .m-table { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .m-search { height: 22px; margin: 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface);
+    display: flex; align-items: center; padding: 0 8px; font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
+  .m-tr { display: flex; gap: 8px; padding: 6px 10px; border-top: 1px solid var(--line); }
+  .m-tr span { height: 6px; border-radius: 3px; background: var(--muted); opacity: .3; }
+  .m-tr.h span { background: var(--accent); opacity: .5; }
+  .callouts { display: flex; flex-direction: column; gap: 11px; }
+  .callout { display: flex; gap: 12px; align-items: flex-start; }
+  .callout .pin { margin-top: 2px; }
+  .callout p { font-size: 14px; color: var(--muted); } .callout p b { color: var(--ink); }
+
+  /* ---- files + flow2 ---- */
+  .files { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .filecard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px;
+    box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; }
+  .filecard .fname { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--blue-ink); }
+  .filecard .frole { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .filecard p { font-size: 13.5px; color: var(--ink); }
+
+  /* ---- lesson callout ---- */
+  .lesson { background: var(--warm-bg); border: 1px solid color-mix(in srgb, var(--warm) 40%, var(--line));
+    border-radius: var(--r); padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .lesson .tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--warm-ink); font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .lesson h3 { color: var(--ink); }
+  .lesson p { font-size: 14.5px; color: var(--warm-ink); }
+  .lesson code { font-family: var(--font-mono); background: color-mix(in srgb, var(--warm) 15%, transparent);
+    color: var(--warm-ink); padding: 1px 6px; border-radius: 5px; font-size: 12.5px; }
+
+  /* ---- stats ---- */
+  .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; box-shadow: var(--shadow); }
+  .stat .num { font-size: clamp(22px,3.4vw,30px); font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .stat .num.pos { color: var(--accent-ink); }
+  .stat .l { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ---- footer ---- */
+  .foot { border-top: 1px solid var(--line); padding-top: 26px; display: flex; flex-direction: column; gap: 16px; }
+  .foot .lead { font-size: clamp(18px,2.6vw,23px); font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+  .foot .lead .hl { color: var(--accent-ink); }
+  .runbox { background: var(--ink); color: var(--bg); border-radius: 12px; padding: 16px 18px;
+    font-family: var(--font-mono); font-size: 13px; line-height: 1.9; overflow-x: auto; }
+  .runbox .c { color: color-mix(in srgb, var(--accent) 70%, #fff); }
+  .runbox .cm { opacity: .6; }
+  .repo { font-family: var(--font-mono); font-size: 13px; color: var(--muted); word-break: break-all; }
+  .repo b { color: var(--ink); }
+
+  @media (max-width: 900px) {
+    .parts, .steps, .stats { grid-template-columns: repeat(2,1fr); }
+    .handoff, .anatomy, .files { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .transform { grid-template-columns: 1fr; }
+    .transform-mid { flex-direction: row; } .transform-mid .arrow { transform: rotate(90deg); }
+    .parts, .steps, .stats, .m-cards { grid-template-columns: 1fr; }
+    .m-cards { grid-template-columns: repeat(2,1fr); }
+    .fbar { grid-template-columns: 1fr; gap: 5px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+</head>
+<body>
+<main class="page">
+
+  <header class="hero">
+    <div class="sec-head">
+      <p class="eyebrow">Full Project · Python + Web Dev</p>
+      <h1>The Sales Report Dashboard, end to end</h1>
+      <p class="deck">One project, three parts, two skills. Messy sales data goes in one side as a broken CSV and comes out the other as a clean, responsive dashboard — with a Python engine in the middle. Here's every piece and how they connect.</p>
+    </div>
+
+    <div class="flow">
+      <div class="node file"><span class="k">messy_sales.csv</span><span class="d">raw · 26 rows</span></div>
+      <span class="conn">&#8594;</span>
+      <div class="node code"><span class="k">clean_data.py</span><span class="d">Part A · Python</span></div>
+      <span class="conn">&#8594;</span>
+      <div class="node file"><span class="k">clean_sales.csv</span><span class="d">21 clean orders</span></div>
+      <div class="node file"><span class="k">summary.json</span><span class="d">the report</span></div>
+      <span class="conn">&#8594;</span>
+      <div class="node ui"><span class="k">index.html</span><span class="d">Part B · dashboard</span></div>
+      <span class="conn">&#8594;</span>
+      <div class="node code"><span class="k">README + shots</span><span class="d">Part C · packaging</span></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The shape of it</p>
+      <h2>Three parts, built in order</h2>
+      <p class="deck">Each part hands its output to the next. That's why the order matters — the dashboard can't exist until the Python step has produced clean data to feed it.</p>
+    </div>
+    <div class="parts">
+      <div class="part a">
+        <div class="badge">A</div>
+        <div>
+          <div class="role">PYTHON · DATA</div>
+          <h3>The cleaner</h3>
+        </div>
+        <ul>
+          <li><b>clean_data.py</b> reads the messy CSV</li>
+          <li>Dedupes, fixes dates, casing, blanks</li>
+          <li>Writes <b>clean_sales.csv</b> + <b>summary.json</b></li>
+        </ul>
+      </div>
+      <div class="part b">
+        <div class="badge">B</div>
+        <div>
+          <div class="role">HTML · CSS · JS</div>
+          <h3>The dashboard</h3>
+        </div>
+        <ul>
+          <li>Loads the two output files</li>
+          <li>4 stat cards + Chart.js bar chart</li>
+          <li>Searchable, sortable, responsive table</li>
+        </ul>
+      </div>
+      <div class="part c">
+        <div class="badge">C</div>
+        <div>
+          <div class="role">DOCS · POLISH</div>
+          <h3>The packaging</h3>
+        </div>
+        <ul>
+          <li><b>README</b>: problem → before → after</li>
+          <li>Real screenshots (desktop + mobile)</li>
+          <li>How to run · tech used · license</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Part A · the engine</p>
+      <h2>Turning the mess into clean rows</h2>
+      <p class="deck">The same rows before and after. Every highlight on the left is a problem; every highlight on the right is the fix.</p>
+    </div>
+
+    <div class="transform">
+      <div class="card messy">
+        <div class="card-head"><span class="dot"></span>messy_sales.csv</div>
+        <div class="data">1001,2024-01-05,<span class="flag">PRODUCT a</span>,<span class="flag"> john smith </span>,2,19.99
+1006,<span class="flag">3 Mar 2024</span>,<span class="flag">Product C </span>,Bob Lee,1,9.99
+1008,<span class="flag">15-03-2024</span>,Product E,<span class="flag">(blank)</span>,1,30.00
+1013,2024/04/05,Product D,Jane Doe,<span class="flag">(blank)</span>,12.00
+<span class="row-dup">1001,2024-01-05,PRODUCT a, john smith ,2,19.99</span></div>
+      </div>
+      <div class="transform-mid">
+        <span class="arrow">&#8594;</span>
+        <div class="engine">clean_data.py</div>
+        <span class="arrow">&#8594;</span>
+      </div>
+      <div class="card clean">
+        <div class="card-head"><span class="dot"></span>clean_sales.csv</div>
+        <div class="data">1001,2024-01-05,<span class="fix">Product A</span>,<span class="fix">John Smith</span>,2,19.99,39.98
+1006,<span class="fix">2024-03-03</span>,<span class="fix">Product C</span>,Bob Lee,1,9.99,9.99
+1008,<span class="fix">2024-03-15</span>,Product E,<span class="fix">Unknown</span>,1,30.0,30.0
+<span class="com">1013 → dropped (missing quantity)</span>
+<span class="com">duplicate → removed</span></div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step"><span class="n">01</span><h3>De-duplicate</h3><p>Remembers each row in a set and skips exact repeats.</p><span class="fn">clean_rows()</span></div>
+      <div class="step"><span class="n">02</span><h3>Fix dates</h3><p>Tries 6 formats until one fits, outputs YYYY-MM-DD.</p><span class="fn">parse_date()</span></div>
+      <div class="step"><span class="n">03</span><h3>Fix text</h3><p>Collapses spaces and title-cases every name.</p><span class="fn">clean_text()</span></div>
+      <div class="step"><span class="n">04</span><h3>Missing values</h3><p>Blank customer → Unknown; no qty/price → drop.</p><span class="fn">to_number()</span></div>
+    </div>
+
+    <div class="funnel">
+      <div class="fbar"><div class="lab">Raw rows &nbsp;<b>26</b></div><div class="track"><div class="meter raw" style="width:100%">26</div></div></div>
+      <div class="drop">&#8722; 2 duplicates &nbsp; &#8722; 3 incomplete orders</div>
+      <div class="fbar"><div class="lab">Clean orders &nbsp;<b>21</b></div><div class="track"><div class="meter clean" style="width:80.8%">21</div></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The handoff</p>
+      <h2>summary.json is the bridge between A and B</h2>
+      <p class="deck">This is the single most important idea in the project: Part A doesn't talk to Part B directly. It leaves a file. The dashboard reads that file. Each value below powers a specific piece of the UI.</p>
+    </div>
+    <div class="handoff">
+      <div class="json"><pre><code>{
+  <span class="jkey">"total_revenue"</span>: <span class="jnum">1128.22</span>,
+  <span class="jkey">"order_count"</span>: <span class="jnum">21</span>,
+  <span class="jkey">"revenue_by_month"</span>: {
+    <span class="jstr">"2024-01"</span>: <span class="jnum">215.42</span>,
+    <span class="jstr">"2024-02"</span>: <span class="jnum">520.88</span>,
+    ...
+  },
+  <span class="jkey">"top_5_products"</span>: [
+    { <span class="jkey">"product"</span>: <span class="jstr">"Product B"</span>,
+      <span class="jkey">"revenue"</span>: <span class="jnum">500.50</span> },
+    ...
+  ]
+}</code></pre></div>
+      <div class="maps">
+        <div class="map"><span class="badge2">total_revenue</span><p><b>Card 1</b> — $1,128.22, and ÷ order_count gives avg order value</p></div>
+        <div class="map"><span class="badge2">order_count</span><p><b>Card 2</b> — the "21 orders" figure</p></div>
+        <div class="map"><span class="badge2">revenue_by_month</span><p><b>The chart</b> — each key/value becomes a bar</p></div>
+        <div class="map"><span class="badge2">top_5_products</span><p><b>Card 4</b> — the first item is the top product</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Part B · the dashboard</p>
+      <h2>What the browser actually shows</h2>
+      <p class="deck">Four numbered pieces, all filled in by JavaScript after it fetches the data. Nothing is hard-coded — change the CSV, re-run Part A, and the whole dashboard updates.</p>
+    </div>
+    <div class="anatomy">
+      <div class="mock" aria-hidden="true">
+        <div class="mock-row"><span class="m-logo">S</span><span class="m-title">Sales Report Dashboard</span></div>
+        <div class="mock-row">
+          <span class="pin">1</span>
+          <div class="m-cards" style="flex:1">
+            <div class="m-card"><span class="ml"></span><span class="mv"></span></div>
+            <div class="m-card"><span class="ml"></span><span class="mv"></span></div>
+            <div class="m-card"><span class="ml"></span><span class="mv"></span></div>
+            <div class="m-card"><span class="ml"></span><span class="mv"></span></div>
+          </div>
+        </div>
+        <div class="mock-row">
+          <span class="pin">2</span>
+          <div class="m-chart" style="flex:1">
+            <div class="b" style="height:41%"></div><div class="b" style="height:100%"></div>
+            <div class="b" style="height:35%"></div><div class="b" style="height:35%"></div>
+            <div class="b" style="height:12%"></div>
+          </div>
+        </div>
+        <div class="mock-row">
+          <span class="pin">3</span>
+          <div class="m-table" style="flex:1">
+            <div class="m-search">Search product, customer, date…</div>
+            <div class="m-tr h"><span style="width:12%"></span><span style="width:20%"></span><span style="width:22%"></span><span style="width:20%"></span></div>
+            <div class="m-tr"><span style="width:12%"></span><span style="width:20%"></span><span style="width:22%"></span><span style="width:20%"></span></div>
+            <div class="m-tr"><span style="width:12%"></span><span style="width:20%"></span><span style="width:22%"></span><span style="width:20%"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="callouts">
+        <div class="callout"><span class="pin">1</span><p><b>Stat cards</b> — revenue, orders, avg order value, top product. Read from <code style="font-family:var(--font-mono)">summary.json</code>; avg is computed in JS.</p></div>
+        <div class="callout"><span class="pin">2</span><p><b>Chart.js bar chart</b> — <code style="font-family:var(--font-mono)">revenue_by_month</code> becomes the bars. February towers over the rest.</p></div>
+        <div class="callout"><span class="pin">3</span><p><b>The table</b> — every cleaned order from <code style="font-family:var(--font-mono)">clean_sales.csv</code>, with a live search box and clickable headers to sort.</p></div>
+        <div class="callout"><span class="pin">4</span><p><b>Responsive</b> — cards stack, the chart resizes, the table scrolls sideways on a phone.</p></div>
+      </div>
+    </div>
+
+    <div class="files">
+      <div class="filecard"><span class="frole">structure</span><span class="fname">index.html</span><p>The empty shell — a cards box, a chart canvas, and an empty table.</p></div>
+      <div class="filecard"><span class="frole">style</span><span class="fname">style.css</span><p>The look and the responsive rules that reflow it for small screens.</p></div>
+      <div class="filecard"><span class="frole">brain</span><span class="fname">script.js</span><p>Fetches the data, then builds the cards, chart, and table — plus search &amp; sort.</p></div>
+    </div>
+
+    <div class="lesson">
+      <p class="tag">&#9888; A bug worth knowing</p>
+      <h3>flex-basis follows the flex direction</h3>
+      <p>The search box was fine on desktop but ballooned to <code>220px tall</code> on mobile. The cause: <code>flex: 1 1 220px</code> sets the size along the container's main axis. On desktop the row layout made 220px a <em>width</em>; switching to <code>flex-direction: column</code> on mobile turned it into a <em>height</em>. Fix: reset it to <code>flex: 0 0 auto; width: 100%</code> inside the mobile breakpoint.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Part C · packaging</p>
+      <h2>Making the project understandable on its own</h2>
+      <p class="deck">Working code isn't the whole story — most people read the README before they ever run anything. So it has to explain the project by itself: the problem, the before-and-after, and how to run it.</p>
+    </div>
+    <div class="files">
+      <div class="filecard"><span class="frole">tells the story</span><span class="fname">README.md</span><p>One-liner → the problem → before &amp; after images → how to run → tech used.</p></div>
+      <div class="filecard"><span class="frole">proof it works</span><span class="fname">screenshots/</span><p>The messy input, the desktop dashboard, and the mobile view — real captures.</p></div>
+      <div class="filecard"><span class="frole">professional signals</span><span class="fname">LICENSE · .gitignore</span><p>MIT license and clean Git hygiene — the marks of a real repo.</p></div>
+    </div>
+
+    <div class="lesson">
+      <p class="tag">&#9432; Gotcha to remember</p>
+      <h3>The dashboard needs a local server</h3>
+      <p>Double-clicking <code>index.html</code> shows empty cards. Browsers block <code>fetch()</code> on <code>file://</code> for security, so the data never loads. The fix — and what the README says — is to serve it: <code>python -m http.server 8000</code>, then open <code>localhost:8000</code>.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The result</p>
+      <h2>From a broken CSV to a live dashboard</h2>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="num pos">$1,128.22</div><div class="l">Revenue surfaced</div></div>
+      <div class="stat"><div class="num">26&#8594;21</div><div class="l">Rows cleaned to orders</div></div>
+      <div class="stat"><div class="num">5</div><div class="l">Months charted</div></div>
+      <div class="stat"><div class="num">0</div><div class="l">Python dependencies</div></div>
+    </div>
+    <p class="deck" style="max-width:68ch">A 26-row export riddled with duplicates, mixed date formats, and blank cells becomes a clean, searchable dashboard that surfaces <strong style="color:var(--accent-ink)">$1,128.22 across 5 months</strong> — and every step of the transformation is documented, so anyone visiting the repo can follow exactly how it works.</p>
+  </section>
+
+  <footer class="foot">
+    <p class="lead">Messy file in, <span class="hl">clean dashboard out</span> — with the story of how it got there written down for anyone who visits.</p>
+    <div class="runbox">
+<span class="cm"># 1 · clean the data</span>
+<span class="c">python clean_data.py</span>
+<span class="cm"># 2 · serve the dashboard</span>
+<span class="c">python -m http.server 8000</span>  <span class="cm">→ open localhost:8000</span>
+    </div>
+    <p class="repo">repo &nbsp;·&nbsp; <b>github.com/MuhammadHasnain1-debug/sales-report-dashboard</b></p>
+  </footer>
+
+</main>
+
+</body>
+</html>
